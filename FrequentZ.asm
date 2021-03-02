@@ -17,15 +17,15 @@ option casemap:none
 ;+----------------------------------------------------------------------------+
 ;|  Function Prototypes:
 WinMain                 proto   :DWORD,:DWORD,:DWORD,:DWORD
-InitSelector		    proto	:DWORD,:DWORD,:DWORD
-ParseTuning			    proto	:DWORD
+InitSelector            proto   :DWORD,:DWORD,:DWORD
+ParseTuning             proto   :DWORD
 CreateTunerButtons      proto   :DWORD,:DWORD
-DestroyTunerButtons	    proto	:DWORD,:DWORD
+DestroyTunerButtons     proto   :DWORD,:DWORD
 EnumerateTunings        proto   :DWORD,:DWORD,:DWORD
-GetTuningByIndex	    proto	:DWORD,:DWORD
-PlayNote			    proto	:DWORD
-CheckMultiInstance	    proto	:DWORD,:DWORD,:DWORD,:DWORD
-GetAppTitle			    proto	:DWORD,:DWORD,:DWORD,:DWORD
+GetTuningByIndex        proto   :DWORD,:DWORD
+PlayNote                proto   :DWORD
+CheckMultiInstance      proto   :DWORD,:DWORD,:DWORD,:DWORD
+GetAppTitle             proto   :DWORD,:DWORD,:DWORD,:DWORD
 ;|
 ;+----------------------------------------------------------------------------+
 
