@@ -112,15 +112,15 @@ hBkBrush                DWORD           ?
 ;+----------------------------------------------------------------------------+
 ;|  Startup:
 start:
-	invoke GetModuleHandle, NULL
-	mov    hInstance,eax
+    invoke GetModuleHandle, NULL
+    mov    hInstance,eax
 
-	invoke GetCommandLine
-	mov    CommandLine,eax
+    invoke GetCommandLine
+    mov    CommandLine,eax
 
     ;## Grab a heap handle
-	invoke	HeapCreate, NULL, 255, 2048
-	mov		hHeap, eax
+    invoke	HeapCreate, NULL, 255, 2048
+    mov		hHeap, eax
 
     ;##: Check if we're already running
     invoke  CheckMultiInstance, hInstance, ADDR AppName, ADDR ClassName, ADDR MutexName
@@ -129,70 +129,70 @@ start:
         invoke  ExitProcess, eax
     .ENDIF
 
-	;## Entry point for all windows programs
-	invoke WinMain, hInstance,NULL,CommandLine, SW_SHOWDEFAULT
+    ;## Entry point for all windows programs
+    invoke WinMain, hInstance,NULL,CommandLine, SW_SHOWDEFAULT
 
-	;## Free and destroy the heap
-	invoke  HeapFree, hHeap, NULL, pWindowHandles
-	invoke  HeapDestroy, hHeap
+    ;## Free and destroy the heap
+    invoke  HeapFree, hHeap, NULL, pWindowHandles
+    invoke  HeapDestroy, hHeap
 
-	invoke ExitProcess,eax
+    invoke ExitProcess,eax
 
 WinMain proc hInst:HINSTANCE,hPrevInst:HINSTANCE,CmdLine:LPSTR,CmdShow:DWORD
-	LOCAL wc:WNDCLASSEX
-	LOCAL msg:MSG
-	LOCAL hwnd:HWND
+    LOCAL wc:WNDCLASSEX
+    LOCAL msg:MSG
+    LOCAL hwnd:HWND
 
-	mov     wc.cbSize,SIZEOF WNDCLASSEX
-	mov     wc.style, CS_HREDRAW or CS_VREDRAW
-	mov     wc.lpfnWndProc, OFFSET WndProc
-	mov     wc.cbClsExtra,NULL
-	mov     wc.cbWndExtra,NULL
-	push    hInstance
-	pop     wc.hInstance
+    mov     wc.cbSize,SIZEOF WNDCLASSEX
+    mov     wc.style, CS_HREDRAW or CS_VREDRAW
+    mov     wc.lpfnWndProc, OFFSET WndProc
+    mov     wc.cbClsExtra,NULL
+    mov     wc.cbWndExtra,NULL
+    push    hInstance
+    pop     wc.hInstance
     invoke  LoadImage, hInst, IDB_BKGROUND, IMAGE_BITMAP, NULL, NULL, LR_DEFAULTCOLOR
     invoke  CreatePatternBrush, eax
     mov     hBkBrush, eax
-	mov     wc.hbrBackground, eax
+    mov     wc.hbrBackground, eax
     invoke  LoadImage, hInst, IDI_APPICONLG, IMAGE_ICON, NULL, NULL, LR_DEFAULTCOLOR
     mov     wc.hIcon, eax
     invoke  LoadImage, hInst, IDI_APPICONSM, IMAGE_ICON, NULL, NULL, LR_DEFAULTCOLOR
     mov     wc.hIconSm, eax
-	mov     wc.lpszMenuName,NULL
-	mov     wc.lpszClassName,OFFSET ClassName
-	invoke  LoadCursor,NULL,IDC_ARROW
-	mov     wc.hCursor,eax
+    mov     wc.lpszMenuName,NULL
+    mov     wc.lpszClassName,OFFSET ClassName
+    invoke  LoadCursor,NULL,IDC_ARROW
+    mov     wc.hCursor,eax
 
-	invoke  RegisterClassEx, addr wc
+    invoke  RegisterClassEx, addr wc
     invoke  GetAppTitle, hInst, ADDR AppName, ADDR AppTitle, ADDR strHttpHdrUserAgent
     mov     dwAppVersion, eax
-	INVOKE  CreateWindowEx,NULL,ADDR ClassName,ADDR AppTitle, WS_SYSMENU,200,200,400,300,NULL,NULL,hInst,NULL
-	mov     hwnd,eax
+    INVOKE  CreateWindowEx,NULL,ADDR ClassName,ADDR AppTitle, WS_SYSMENU,200,200,400,300,NULL,NULL,hInst,NULL
+    mov     hwnd,eax
 
-	invoke  ShowWindow, hwnd,SW_SHOWNORMAL
-	invoke  UpdateWindow, hwnd
+    invoke  ShowWindow, hwnd,SW_SHOWNORMAL
+    invoke  UpdateWindow, hwnd
 
-	.WHILE (TRUE)
-		invoke GetMessage, ADDR msg,NULL,0,0
-		.BREAK .IF (!eax)
-		invoke TranslateMessage, ADDR msg
-		invoke DispatchMessage, ADDR msg
-	.ENDW
+    .WHILE (TRUE)
+        invoke GetMessage, ADDR msg,NULL,0,0
+        .BREAK .IF (!eax)
+        invoke TranslateMessage, ADDR msg
+        invoke DispatchMessage, ADDR msg
+    .ENDW
 
-	mov     eax,msg.wParam
-	ret
+    mov     eax,msg.wParam
+    ret
 WinMain endp
 
 WndProc proc hWnd:HWND, uMsg:UINT, wParam:WPARAM, lParam:LPARAM
-	LOCAL   hinst,i
-	LOCAL   dwMidiMessage:DWORD
+    LOCAL   hinst,i
+    LOCAL   dwMidiMessage:DWORD
 
-	.IF (uMsg==WM_DESTROY)
+    .IF (uMsg==WM_DESTROY)
         invoke midiOutClose, hMidi
-		invoke PostQuitMessage,NULL
+        invoke PostQuitMessage,NULL
 
-	.ELSEIF (uMsg==WM_CREATE)
-	    ; Open the midi stream device
+    .ELSEIF (uMsg==WM_CREATE)
+        ; Open the midi stream device
         invoke  midiOutOpen, ADDR hMidi, MIDI_MAPPER, 0, 0, 0
 
         ; Create initial controls
@@ -208,7 +208,7 @@ WndProc proc hWnd:HWND, uMsg:UINT, wParam:WPARAM, lParam:LPARAM
 
         ;## Parse the tunings database and set initial conditions
         invoke  EnumerateTunings, ADDR strTuningStdGuitar, ADDR pTuningsIndex, TUNINGS
-		invoke	InitSelector, hwndCbbTuningSelection, ADDR pTuningsIndex, TUNINGS
+        invoke	InitSelector, hwndCbbTuningSelection, ADDR pTuningsIndex, TUNINGS
         invoke  SendMessage, hwndCbbTuningSelection, CB_SETCURSEL, 0, 0
         invoke	GetTuningByIndex, ADDR pTuningsIndex, 0
         invoke  CreateTunerButtons, hWnd, eax
@@ -219,7 +219,7 @@ WndProc proc hWnd:HWND, uMsg:UINT, wParam:WPARAM, lParam:LPARAM
         .IF (ax==CBN_SELCHANGE)
             invoke	DestroyTunerButtons, hWnd, dwButtonCount
             invoke  SendMessage, hwndCbbTuningSelection, CB_GETCURSEL, 0, 0
-        	invoke	GetTuningByIndex, ADDR pTuningsIndex, eax
+            invoke	GetTuningByIndex, ADDR pTuningsIndex, eax
             invoke  CreateTunerButtons, hWnd, eax
         .ELSEIF (ax==BN_CLICKED)
             invoke 	midiOutShortMsg, hMidi, dword ptr [AGUITAR] ; Change patch number
@@ -233,7 +233,7 @@ WndProc proc hWnd:HWND, uMsg:UINT, wParam:WPARAM, lParam:LPARAM
                     or      dwTunerButtonStyle, BS_PUSHLIKE+BS_AUTOCHECKBOX
                     invoke	DestroyTunerButtons, hWnd, dwButtonCount
                     invoke  SendMessage, hwndCbbTuningSelection, CB_GETCURSEL, 0, 0
-        	        invoke	GetTuningByIndex, ADDR pTuningsIndex, eax
+                    invoke	GetTuningByIndex, ADDR pTuningsIndex, eax
                     invoke  CreateTunerButtons, hWnd, eax
                 .ELSE           ;## Checked
                     invoke  SendMessage, hwndChkLoopNote, BM_SETCHECK, 0, 0
@@ -243,7 +243,7 @@ WndProc proc hWnd:HWND, uMsg:UINT, wParam:WPARAM, lParam:LPARAM
                     and     dwTunerButtonStyle, eax
                     invoke	DestroyTunerButtons, hWnd, dwButtonCount
                     invoke  SendMessage, hwndCbbTuningSelection, CB_GETCURSEL, 0, 0
-        	        invoke	GetTuningByIndex, ADDR pTuningsIndex, eax
+                    invoke	GetTuningByIndex, ADDR pTuningsIndex, eax
                     invoke  CreateTunerButtons, hWnd, eax
                 .ENDIF
             .ENDIF
@@ -255,75 +255,75 @@ WndProc proc hWnd:HWND, uMsg:UINT, wParam:WPARAM, lParam:LPARAM
         mov     eax, hBkBrush
         ret
 
-	.ELSE
-		invoke DefWindowProc,hWnd,uMsg,wParam,lParam
-		ret
-	.ENDIF
+    .ELSE
+        invoke DefWindowProc,hWnd,uMsg,wParam,lParam
+        ret
+    .ENDIF
 
-	xor eax,eax
-	ret
+    xor eax,eax
+    ret
 WndProc endp
 
 CreateTunerButtons     proc    uses edx     hWnd:DWORD,pTuning:DWORD
-  	LOCAL	pCurrentAddress:DWORD
-  	LOCAL	dwStringCount:DWORD
-  	LOCAL	dwCountDown:DWORD
-  	LOCAL	dwPosX:DWORD
-  	LOCAL   dwPosY:DWORD
-  	LOCAL	pHandlePos:DWORD
+    LOCAL	pCurrentAddress:DWORD
+    LOCAL	dwStringCount:DWORD
+    LOCAL	dwCountDown:DWORD
+    LOCAL	dwPosX:DWORD
+    LOCAL   dwPosY:DWORD
+    LOCAL	pHandlePos:DWORD
 
 
-	;## Preserve the starting address
-	push	pTuning
-	pop		pCurrentAddress
+    ;## Preserve the starting address
+    push	pTuning
+    pop		pCurrentAddress
 
-	;## Skip over the description string
-	invoke	lstrlen, pCurrentAddress
-	add		pCurrentAddress, eax
-	inc		pCurrentAddress	;## Skip the null byte
-	;## Store the string count
-	mov		eax, pCurrentAddress
-	push	dword ptr [eax]
-	pop		dwStringCount
-	push	dwStringCount
-	pop		dwButtonCount
-	add		pCurrentAddress, 4
-	;## Create the buttons with the given string names
-	xor		eax, eax
-	xor		edx, edx
-	mov		eax, 4
-	mul		dwStringCount
-	invoke	HeapAlloc, hHeap, HEAP_ZERO_MEMORY, eax
-	mov		pWindowHandles, eax
-	mov		pHandlePos, eax
-	mov		dwPosX, 130
-	mov     dwPosY, 60
-   	push	dwStringCount
-   	pop		dwCountDown
-	.WHILE	(dwCountDown > 0)
+    ;## Skip over the description string
+    invoke	lstrlen, pCurrentAddress
+    add		pCurrentAddress, eax
+    inc		pCurrentAddress	;## Skip the null byte
+    ;## Store the string count
+    mov		eax, pCurrentAddress
+    push	dword ptr [eax]
+    pop		dwStringCount
+    push	dwStringCount
+    pop		dwButtonCount
+    add		pCurrentAddress, 4
+    ;## Create the buttons with the given string names
+    xor		eax, eax
+    xor		edx, edx
+    mov		eax, 4
+    mul		dwStringCount
+    invoke	HeapAlloc, hHeap, HEAP_ZERO_MEMORY, eax
+    mov		pWindowHandles, eax
+    mov		pHandlePos, eax
+    mov		dwPosX, 130
+    mov     dwPosY, 60
+    push	dwStringCount
+    pop		dwCountDown
+    .WHILE	(dwCountDown > 0)
         invoke  CreateWindowEx, NULL, ADDR ClassButton, pCurrentAddress, dwTunerButtonStyle, dwPosX, dwPosY, 30, 24, hWnd, NULL, hInstance, NULL
         mov		edx, pHandlePos
         mov		dword ptr [edx], eax
         add		pHandlePos, 4
         invoke	lstrlen, pCurrentAddress
         add		pCurrentAddress, eax
-		inc		pCurrentAddress	;## Skip the null byte
-		dec		dwCountDown
-		add		dwPosX, 25
-		add     dwPosY, 30
+        inc		pCurrentAddress	;## Skip the null byte
+        dec		dwCountDown
+        add		dwPosX, 25
+        add     dwPosY, 30
     .ENDW
     ;## Store the midi values in the button
     push	pWindowHandles
     pop		pHandlePos
-   	push	dwStringCount
-   	pop		dwCountDown
+    push	dwStringCount
+    pop		dwCountDown
     .WHILE	(dwCountDown > 0)
-    	mov		edx, pHandlePos
-    	mov		eax, pCurrentAddress
+        mov		edx, pHandlePos
+        mov		eax, pCurrentAddress
         invoke  SetWindowLong, dword ptr [edx], GWL_USERDATA, dword ptr [eax]
         add		pHandlePos, 4
-    	add		pCurrentAddress, 4
-    	dec		dwCountDown
+        add		pCurrentAddress, 4
+        dec		dwCountDown
     .ENDW
 
     xor     eax, eax
@@ -331,54 +331,54 @@ CreateTunerButtons     proc    uses edx     hWnd:DWORD,pTuning:DWORD
 CreateTunerButtons     endp
 
 EnumerateTunings    proc    pTunings:DWORD,pIndex:DWORD,dwTunings:DWORD
-  	LOCAL	pCurrentAddress:DWORD
-  	LOCAL	dwStringCount:DWORD
-  	LOCAL	dwCountDown:DWORD
+    LOCAL	pCurrentAddress:DWORD
+    LOCAL	dwStringCount:DWORD
+    LOCAL	dwCountDown:DWORD
 
-	;## Preserve the starting address
-	push	pTunings
-	pop		pCurrentAddress
+    ;## Preserve the starting address
+    push	pTunings
+    pop		pCurrentAddress
 
-	;## Loop through the tunings
-	.WHILE	(dwTunings > 0)
-		;## Save this address in the index and increment index pointer
-		push	pCurrentAddress
-		mov		eax, pIndex
-		pop		dword ptr [eax]
-		add		pIndex, 4
+    ;## Loop through the tunings
+    .WHILE	(dwTunings > 0)
+        ;## Save this address in the index and increment index pointer
+        push	pCurrentAddress
+        mov		eax, pIndex
+        pop		dword ptr [eax]
+        add		pIndex, 4
 
-		;## Skip over the description string
-		invoke	lstrlen, pCurrentAddress
-		add		pCurrentAddress, eax
-		inc		pCurrentAddress	;## Skip the null byte
-		;## Store the string count
-		mov		eax, pCurrentAddress
-		push	dword ptr [eax]
-		pop		dwStringCount
-		add		pCurrentAddress, 4
-		;## Skip over the string names
-	   	push	dwStringCount
-	   	pop		dwCountDown
-		.WHILE	(dwCountDown > 0)
-			invoke	lstrlen, pCurrentAddress
-			add		pCurrentAddress, eax
-			inc		pCurrentAddress	;## Skip the null byte
-			dec		dwCountDown
-	    .ENDW
-	    ;## Skip over the midi messages
-	   	push	dwStringCount
-	   	pop		dwCountDown
-	    .WHILE	(dwCountDown > 0)
-	    	add		pCurrentAddress, 4
-	    	dec		dwCountDown
-	    .ENDW
-	    ;## Jump to next tuning address
-	    mov     eax, pCurrentAddress
-	    push    dword ptr [eax]
-	    pop     pCurrentAddress
-	    ;## Decrement tuner index counter
-	    dec		dwTunings
-	.ENDW
+        ;## Skip over the description string
+        invoke	lstrlen, pCurrentAddress
+        add		pCurrentAddress, eax
+        inc		pCurrentAddress	;## Skip the null byte
+        ;## Store the string count
+        mov		eax, pCurrentAddress
+        push	dword ptr [eax]
+        pop		dwStringCount
+        add		pCurrentAddress, 4
+        ;## Skip over the string names
+        push	dwStringCount
+        pop		dwCountDown
+        .WHILE	(dwCountDown > 0)
+            invoke	lstrlen, pCurrentAddress
+            add		pCurrentAddress, eax
+            inc		pCurrentAddress	;## Skip the null byte
+            dec		dwCountDown
+        .ENDW
+        ;## Skip over the midi messages
+        push	dwStringCount
+        pop		dwCountDown
+        .WHILE	(dwCountDown > 0)
+            add		pCurrentAddress, 4
+            dec		dwCountDown
+        .ENDW
+        ;## Jump to next tuning address
+        mov     eax, pCurrentAddress
+        push    dword ptr [eax]
+        pop     pCurrentAddress
+        ;## Decrement tuner index counter
+        dec		dwTunings
+    .ENDW
 
 
     ret
@@ -386,82 +386,82 @@ EnumerateTunings    endp
 
 InitSelector	proc    uses edx    hWnd:DWORD,pIndex:DWORD,dwTunings:DWORD
 
-	.WHILE	(dwTunings > 0)
-		mov		eax, pIndex
-		mov		edx, dword ptr [eax]
-    	invoke  SendMessage, hWnd, CB_ADDSTRING, 0, edx
-    	add		pIndex, 4
-    	dec		dwTunings
-	.ENDW
+    .WHILE	(dwTunings > 0)
+        mov		eax, pIndex
+        mov		edx, dword ptr [eax]
+        invoke  SendMessage, hWnd, CB_ADDSTRING, 0, edx
+        add		pIndex, 4
+        dec		dwTunings
+    .ENDW
 
-	ret
+    ret
 InitSelector 	endp
 
 GetTuningByIndex	proc    uses edx    pIndex:DWORD,dwIndex:DWORD
-	LOCAL	dwCount:DWORD
+    LOCAL	dwCount:DWORD
 
-	push	dwIndex
-	pop		dwCount
+    push	dwIndex
+    pop		dwCount
 
-	.WHILE (dwCount > 0)
-		add		pIndex, 4
-		dec		dwCount
-	.ENDW
+    .WHILE (dwCount > 0)
+        add		pIndex, 4
+        dec		dwCount
+    .ENDW
 
-	mov		edx, pIndex
-	push	dword ptr [edx]
-	pop		edx
-	mov     eax, edx
+    mov		edx, pIndex
+    push	dword ptr [edx]
+    pop		edx
+    mov     eax, edx
 
-	ret
+    ret
 GetTuningByIndex 	endp
 
 DestroyTunerButtons	proc    hWnd:DWORD,dwStrings:DWORD
-	LOCAL	pHandlePos:DWORD
+    LOCAL	pHandlePos:DWORD
 
 
-	;## Store the window handle pointer
-	push	pWindowHandles
-	pop		pHandlePos
+    ;## Store the window handle pointer
+    push	pWindowHandles
+    pop		pHandlePos
 
-	;## Loop through and destroy the string button windows
-	.WHILE (dwStrings > 0)
-		mov		eax, pHandlePos
-		invoke	DestroyWindow, dword ptr [eax]
-		add		pHandlePos, 4
-		dec		dwStrings
-	.ENDW
+    ;## Loop through and destroy the string button windows
+    .WHILE (dwStrings > 0)
+        mov		eax, pHandlePos
+        invoke	DestroyWindow, dword ptr [eax]
+        add		pHandlePos, 4
+        dec		dwStrings
+    .ENDW
 
-	;## Destroy the handle pointer
-	invoke	HeapFree, hHeap, 0, pWindowHandles
+    ;## Destroy the handle pointer
+    invoke	HeapFree, hHeap, 0, pWindowHandles
 
-	ret
+    ret
 DestroyTunerButtons endp
 
 PlayNote	proc	uses edx    hWnd:DWORD
     LOCAL   dwMidiMessage:DWORD
-	LOCAL	dwMidiOffMessage:DWORD
+    LOCAL	dwMidiOffMessage:DWORD
 
-	;## Get the midi data out of the button
+    ;## Get the midi data out of the button
     invoke 	GetWindowLong, hWnd, GWL_USERDATA
-	mov     dwMidiMessage, eax
+    mov     dwMidiMessage, eax
 
-	;## Create a note-off midi message
-	mov		eax, dwMidiMessage
-	mov     edx, 0FFFFFF80h
-	and     edx, eax
-	mov     dwMidiOffMessage, edx
+    ;## Create a note-off midi message
+    mov		eax, dwMidiMessage
+    mov     edx, 0FFFFFF80h
+    and     edx, eax
+    mov     dwMidiOffMessage, edx
 
     ;## If loop is enabled and the button is checked then loop
     mov     eax, 1
     .WHILE (eax==1)
-	    invoke 	midiOutShortMsg, hMidi, dwMidiMessage
+        invoke 	midiOutShortMsg, hMidi, dwMidiMessage
         invoke 	Sleep, 2000
         invoke 	midiOutShortMsg, hMidi, dwMidiOffMessage
         invoke  SendMessage, hWnd, BM_GETCHECK, 0, 0
     .ENDW
 
-	ret
+    ret
 PlayNote 	endp
 
 szErrOnlyOneInstance    db  "You can only run one instance at a time.",0
