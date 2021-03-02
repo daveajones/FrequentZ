@@ -1,0 +1,38 @@
+#include "\masm32\include\resource.h"
+#define IDI_APPICONLG        5000
+#define IDI_APPICONSM        5001
+#define IDB_BKGROUND         5002
+#define VFT_APP              0x00000001L
+#define VOS__WINDOWS32       0x00000004L
+#define VS_VERSION_INFO      1
+
+IDI_APPICONLG        ICON    MOVEABLE    PURE    LOADONCALL  res\icon_min.ico
+IDI_APPICONSM        ICON    MOVEABLE    PURE    LOADONCALL  res\icon_min.ico
+IDB_BKGROUND         BITMAP  res\bkground.bmp
+
+//----Version Information------//
+VS_VERSION_INFO     VERSIONINFO
+  FILEVERSION       0,1,0,4
+  PRODUCTVERSION    0,1,0,4
+  FILEOS            VOS__WINDOWS32
+  FILETYPE          VFT_APP
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904E4"	//Block: language ID = U.S. English, char set = Windows, Multilingual
+        BEGIN
+            VALUE	"CompanyName",      "Sector62\0"
+            VALUE	"FileDescription",  "FrequentZ\0"
+            VALUE	"FileVersion",      "0.1.0.4\0"
+            VALUE	"OriginalFilename", "frequentz.exe\0"
+            VALUE	"ProductName",      "FrequentZ\0"
+            VALUE	"PrivateBuild",     "000\0"
+	        VALUE	"Comments",         "Guitar Tuner Software",0
+            VALUE   "LegalCopyright",   "Copyright (C) Dave Jones. 2006\000"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE	"Translation", 0x0409, 1252
+    END
+END
